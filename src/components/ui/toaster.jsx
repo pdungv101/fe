@@ -26,14 +26,18 @@ export function Toaster() {
               : "bg-red-500 text-white"
           }`}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-grow justify-center">
+            {" "}
+            {/* Centering container */}
             {type === "success" ? (
-              <CheckCircle className="h-6 w-6" />
+              <CheckCircle className="h-12 w-12" />
             ) : (
-              <XCircle className="h-6 w-6" />
+              <XCircle className="h-12 w-12" />
             )}
-            <div className="grid gap-1">
-              {title && <ToastTitle>{title}</ToastTitle>}
+            <div className="grid gap-1 text-center">
+              {" "}
+              {/* Center text */}
+              {title && <ToastTitle className="text-lg">{title}</ToastTitle>}
               {description && (
                 <ToastDescription>{description}</ToastDescription>
               )}
@@ -43,7 +47,7 @@ export function Toaster() {
           <ToastClose />
         </Toast>
       ))}
-      <ToastViewport className="fixed inset-0 flex items-center justify-center z-50" />
+      <ToastViewport className="fixed inset-0 flex items-center z-50" />
     </ToastProvider>
   );
 }

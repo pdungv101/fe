@@ -39,7 +39,7 @@ export function RegisterForm({ className, ...props }) {
       localStorage.setItem("user", JSON.stringify(response.data.newUser));
       localStorage.setItem("userID", response.data.newUser.user_id);
 
-      const createdAt = response.data.created_at;
+      const createdAt = response.data.newUser.created_at;
       router.push("/");
 
       // Show success toast
