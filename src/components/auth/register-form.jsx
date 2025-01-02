@@ -6,12 +6,14 @@ import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useToast } from "@/hooks/use-toast";
 
 export function RegisterForm({ className, ...props }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -22,16 +24,42 @@ export function RegisterForm({ className, ...props }) {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError(""); // Reset error state
+    setError("");
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/register`, {
-        email,
-        password,
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/users/register`,
+        {
+          email,
+          password,
+        }
+      );
+
+      console.log(response.data);
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.newUser));
+      localStorage.setItem("userID", response.data.newUser.user_id);
+
+      const createdAt = response.data.created_at;
+      router.push("/");
+
+      // Show success toast
+      toast({
+        title: "Account has been created.",
+        description: `Account created at: ${new Date(
+          createdAt
+        ).toLocaleString()}`,
+        type: "success", // Set type to success
       });
-      router.push("/login");
     } catch (error) {
       setError("Registration failed. Please try again.");
       console.error(error);
+
+      // Show error toast
+      toast({
+        title: "Registration Error",
+        description: "Registration failed. Please try again.",
+        type: "error", // Set type to error
+      });
     }
   };
 
@@ -47,33 +75,26 @@ export function RegisterForm({ className, ...props }) {
           Enter your email below to create an account
         </p>
       </div>
+
       {error && <div className="text-red-500">{error}</div>}
+
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
             type="email"
-            placeholder="m@example.com"
-            required
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className="grid gap-2">
-          <div className="flex items-center">
-            <Label htmlFor="password">Password</Label>
-            <a
-              href="#"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-            >
-              Forgot your password?
-            </a>
-          </div>
+          <Label htmlFor="password">Password</Label>
           <Input
             id="password"
             type="password"
-            required
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -81,6 +102,12 @@ export function RegisterForm({ className, ...props }) {
         <Button type="submit" className="w-full">
           Register
         </Button>
+
+        <div className="flex justify-center">
+          <a href="#" className="text-sm underline-offset-4 hover:underline">
+            Forgot your password?
+          </a>
+        </div>
         <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
           <span className="relative z-10 bg-background px-2 text-muted-foreground">
             Or continue with
@@ -101,6 +128,10 @@ export function RegisterForm({ className, ...props }) {
         <a href="/login" className="underline underline-offset-4">
           Login
         </a>
+      </div>
+      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
+        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
+        and <a href="#">Privacy Policy</a>.
       </div>
     </form>
   );

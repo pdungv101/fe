@@ -6,13 +6,16 @@ import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useToast } from "@/hooks/use-toast"; // Import the toast hook
 
 export function LoginForm({ className, ...props }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const { toast } = useToast(); // Initialize toast
 
   const router = useRouter();
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -36,6 +39,14 @@ export function LoginForm({ className, ...props }) {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
       localStorage.setItem("userID", response.data.user.user_id);
+
+      // Show success toast
+      toast({
+        title: "Login Successful",
+        description: "You have successfully logged in.",
+        type: "success", // Set type to success
+      });
+
       router.push("/");
     } catch (error) {
       if (error.response) {
@@ -46,6 +57,13 @@ export function LoginForm({ className, ...props }) {
         setError("An error occurred. Please try again.");
       }
       console.error(error);
+
+      // Show error toast
+      toast({
+        title: "Login Error",
+        description: "Invalid email or password. Please try again.",
+        type: "error", // Set type to error
+      });
     }
   };
 
@@ -70,26 +88,17 @@ export function LoginForm({ className, ...props }) {
           <Input
             id="email"
             type="email"
-            placeholder="m@example.com"
-            required
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className="grid gap-2">
-          <div className="flex items-center">
-            <Label htmlFor="password">Password</Label>
-            <a
-              href="#"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-            >
-              Forgot your password?
-            </a>
-          </div>
+          <Label htmlFor="password">Password</Label>
           <Input
             id="password"
             type="password"
-            required
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -97,6 +106,14 @@ export function LoginForm({ className, ...props }) {
         <Button type="submit" className="w-full">
           Login
         </Button>
+
+        {/* Centered "Forgot your password?" link */}
+        <div className="flex justify-center">
+          <a href="#" className="text-sm underline-offset-4 hover:underline">
+            Forgot your password?
+          </a>
+        </div>
+
         <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
           <span className="relative z-10 bg-background px-2 text-muted-foreground">
             Or continue with
@@ -117,6 +134,10 @@ export function LoginForm({ className, ...props }) {
         <a href="/register" className="underline underline-offset-4">
           Sign up
         </a>
+      </div>
+      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
+        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
+        and <a href="#">Privacy Policy</a>.
       </div>
     </form>
   );
